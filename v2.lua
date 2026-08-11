@@ -1,7 +1,3 @@
--- ==========================================
--- CANDY ZONE — AUTO FARM GUI
--- Minimalist Design with Scroll Animation
--- ==========================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -9,12 +5,9 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- ==========================================
--- НАСТРОЙКИ
--- ==========================================
 local Settings = {
     AutoFarmEnabled = false,
-    FarmMode = "Underground", -- "Underground" or "Sit"
+    FarmMode = "Underground",
     TweenSpeed = 25,
     AutoReset = true,
     AvoidMurder = true,
@@ -23,9 +16,6 @@ local Settings = {
     CoinLimit = 40,
 }
 
--- ==========================================
--- СОСТОЯНИЯ
--- ==========================================
 local State = {
     isFarming = false,
     isActivelyFlying = false,
@@ -34,12 +24,81 @@ local State = {
     currentTween = nil,
 }
 
--- ==========================================
--- GUI СОЗДАНИЕ
--- ==========================================
+local function createNotification()
+    local NotifGui = Instance.new("ScreenGui")
+    NotifGui.Name = "CandyNotification"
+    NotifGui.ResetOnSpawn = false
+    NotifGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    NotifGui.Parent = LocalPlayer.PlayerGui
+
+    local NotifFrame = Instance.new("Frame")
+    NotifFrame.Name = "NotifFrame"
+    NotifFrame.Size = UDim2.new(0, 280, 0, 70)
+    NotifFrame.Position = UDim2.new(1, 300, 0.85, -35)
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    NotifFrame.BorderSizePixel = 0
+    NotifFrame.Parent = NotifGui
+
+    local NotifCorner = Instance.new("UICorner")
+    NotifCorner.CornerRadius = UDim.new(0, 10)
+    NotifCorner.Parent = NotifFrame
+
+    local NotifStroke = Instance.new("UIStroke")
+    NotifStroke.Color = Color3.fromRGB(255, 60, 60)
+    NotifStroke.Thickness = 2
+    NotifStroke.Parent = NotifFrame
+
+    local Title = Instance.new("TextLabel")
+    Title.Name = "Title"
+    Title.Size = UDim2.new(1, -20, 0, 25)
+    Title.Position = UDim2.new(0, 10, 0, 8)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.GothamBold
+    Title.Text = "🍬 Thanks for using!"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 14
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Parent = NotifFrame
+
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Name = "Subtitle"
+    Subtitle.Size = UDim2.new(1, -20, 0, 20)
+    Subtitle.Position = UDim2.new(0, 10, 0, 35)
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.Text = "Tap to copy link to discord server"
+    Subtitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+    Subtitle.TextSize = 11
+    Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+    Subtitle.Parent = NotifFrame
+
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, 0, 1, 0)
+    Button.BackgroundTransparency = 1
+    Button.Text = ""
+    Button.Parent = NotifFrame
+
+    Button.MouseButton1Click:Connect(function()
+        setclipboard("https://discord.gg/3KjWyZ6uBu")
+        Subtitle.Text = "✅ Link copied to clipboard!"
+        Subtitle.TextColor3 = Color3.fromRGB(60, 255, 60)
+    end)
+
+    TweenService:Create(NotifFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -290, 0.85, -35)
+    }):Play()
+
+    task.delay(6, function()
+        TweenService:Create(NotifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 300, 0.85, -35)
+        }):Play()
+        
+        task.wait(0.5)
+        NotifGui:Destroy()
+    end)
+end
 
 local function createGUI()
-    -- Удаляем старую GUI если есть
     if LocalPlayer.PlayerGui:FindFirstChild("CandyZoneGUI") then
         LocalPlayer.PlayerGui.CandyZoneGUI:Destroy()
     end
@@ -50,7 +109,6 @@ local function createGUI()
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.Parent = LocalPlayer.PlayerGui
 
-    -- Главный контейнер
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 220, 0, 40)
@@ -64,13 +122,11 @@ local function createGUI()
     MainCorner.CornerRadius = UDim.new(0, 10)
     MainCorner.Parent = MainFrame
 
-    -- Красная обводка
     local RedStroke = Instance.new("UIStroke")
     RedStroke.Color = Color3.fromRGB(255, 60, 60)
     RedStroke.Thickness = 2
     RedStroke.Parent = MainFrame
 
-    -- Заголовок (кнопка для сворачивания)
     local Header = Instance.new("TextButton")
     Header.Name = "Header"
     Header.Size = UDim2.new(1, 0, 0, 40)
@@ -83,7 +139,6 @@ local function createGUI()
     Header.ZIndex = 2
     Header.Parent = MainFrame
 
-    -- Индикатор статуса
     local StatusIndicator = Instance.new("Frame")
     StatusIndicator.Name = "StatusIndicator"
     StatusIndicator.Size = UDim2.new(0, 6, 0, 6)
@@ -97,14 +152,15 @@ local function createGUI()
     IndicatorCorner.CornerRadius = UDim.new(1, 0)
     IndicatorCorner.Parent = StatusIndicator
 
-    -- Контент (выезжающий блок)
-    local Content = Instance.new("Frame")
+    local Content = Instance.new("ScrollingFrame")
     Content.Name = "Content"
     Content.Size = UDim2.new(1, 0, 0, 0)
     Content.Position = UDim2.new(0, 0, 0, 40)
     Content.BackgroundTransparency = 1
     Content.BorderSizePixel = 0
-    Content.ClipsDescendants = false
+    Content.ScrollBarThickness = 4
+    Content.ScrollBarImageColor3 = Color3.fromRGB(255, 60, 60)
+    Content.CanvasSize = UDim2.new(0, 0, 0, 0)
     Content.ZIndex = 1
     Content.Parent = MainFrame
 
@@ -120,9 +176,9 @@ local function createGUI()
     ContentLayout.Padding = UDim.new(0, 8)
     ContentLayout.Parent = Content
 
-    -- ==========================================
-    -- ФУНКЦИИ СОЗДАНИЯ ЭЛЕМЕНТОВ
-    -- ==========================================
+    ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        Content.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y + 20)
+    end)
 
     local function createToggle(name, defaultValue, callback)
         local Toggle = Instance.new("Frame")
@@ -335,10 +391,6 @@ local function createGUI()
         return Slider
     end
 
-    -- ==========================================
-    -- СОЗДАНИЕ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ
-    -- ==========================================
-
     createToggle("Auto Farm", Settings.AutoFarmEnabled, function(value)
         Settings.AutoFarmEnabled = value
         if value then
@@ -366,10 +418,6 @@ local function createGUI()
         Settings.AvoidMurder = value
     end)
 
-    -- ==========================================
-    -- АНИМАЦИЯ СВОРАЧИВАНИЯ/РАЗВОРАЧИВАНИЯ
-    -- ==========================================
-
     local isExpanded = false
     local contentHeight = 180
 
@@ -387,10 +435,6 @@ local function createGUI()
             Size = targetContentSize
         }):Play()
     end)
-
-    -- ==========================================
-    -- DRAGGABLE
-    -- ==========================================
 
     local dragging, dragInput, dragStart, startPos
 
@@ -424,13 +468,7 @@ local function createGUI()
             update(input)
         end
     end)
-
-    print("✅ GUI Created!")
 end
-
--- ==========================================
--- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
--- ==========================================
 
 local function getTorso(char)
     if not char then return nil end
@@ -501,12 +539,10 @@ local function hasNearbyMurderer()
             local backpack = player:FindFirstChild("Backpack")
             
             if otherHRP and (otherHRP.Position - hrp.Position).Magnitude <= 10 then
-                -- Проверяем нож в руке
                 if player.Character:FindFirstChild("Knife") then
                     return true
                 end
                 
-                -- Проверяем нож в рюкзаке
                 if backpack and backpack:FindFirstChild("Knife") then
                     return true
                 end
@@ -540,10 +576,6 @@ local function getNearestCoin(torso)
     end
     return nearestCoin
 end
-
--- ==========================================
--- UNDERGROUND MODE
--- ==========================================
 
 local function applyFlightPhysics(char)
     if not char then return end
@@ -640,10 +672,6 @@ local function flyToPoint(targetPos, targetCoin, hrp, torso, lockedRotation)
     return reached
 end
 
--- ==========================================
--- SIT MODE
--- ==========================================
-
 local function tweenToCoin(coin)
     if not coin or not coin.Parent or not coin:FindFirstChild("TouchInterest") then 
         return false 
@@ -723,23 +751,17 @@ local function collectCoin(coin)
     end)
 end
 
--- ==========================================
--- ГЛАВНЫЙ ЦИКЛ ФАРМА
--- ==========================================
-
 function startFarming()
     if State.isFarming then return end
     State.isFarming = true
     
     table.clear(State.ignoredCoins)
-    print("🔄 AutoFarm started (" .. Settings.FarmMode .. " mode)")
 
     task.spawn(function()
         while State.isFarming do
             task.wait()
             
             local success, err = pcall(function()
-                -- Проверка убийцы рядом
                 if hasNearbyMurderer() then
                     State.isActivelyFlying = false
                     State.currentTargetCoin = nil
@@ -779,11 +801,9 @@ function startFarming()
                     return
                 end
 
-                -- Auto Reset
                 if Settings.AutoReset then
                     local coins = getCurrentCoins()
                     if coins >= Settings.CoinLimit then
-                        print("💀 Auto Reset: " .. coins .. " coins")
                         humanoid.Health = 0
                         task.wait(5)
                         return
@@ -859,13 +879,7 @@ function stopFarming()
             humanoid.Sit = false
         end
     end
-    
-    print("🛑 AutoFarm stopped")
 end
-
--- ==========================================
--- АВТОМАТИЧЕСКИЙ НОКЛИП (UNDERGROUND)
--- ==========================================
 
 RunService.Stepped:Connect(function()
     if not State.isFarming or not State.isActivelyFlying or Settings.FarmMode ~= "Underground" then return end
@@ -885,13 +899,5 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- ==========================================
--- ЗАПУСК GUI
--- ==========================================
-
 createGUI()
-
-print("✅ CANDY ZONE — Auto Farm Loaded!")
-print("🍬 Compact GUI with scroll animation")
-print("⚙️ Modes: Underground & Sit")
-print("🔪 Avoid Murder enabled")
+createNotification()
