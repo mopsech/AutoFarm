@@ -57,7 +57,7 @@ local function createGUI()
     MainFrame.Position = UDim2.new(0.5, -110, 0, 15)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     MainFrame.BorderSizePixel = 0
-    MainFrame.ClipsDescendants = false
+    MainFrame.ClipsDescendants = true
     MainFrame.Parent = ScreenGui
 
     local MainCorner = Instance.new("UICorner")
@@ -74,11 +74,13 @@ local function createGUI()
     local Header = Instance.new("TextButton")
     Header.Name = "Header"
     Header.Size = UDim2.new(1, 0, 0, 40)
+    Header.Position = UDim2.new(0, 0, 0, 0)
     Header.BackgroundTransparency = 1
     Header.Font = Enum.Font.GothamBold
     Header.Text = "🍬 CANDY ZONE"
     Header.TextColor3 = Color3.fromRGB(255, 255, 255)
     Header.TextSize = 14
+    Header.ZIndex = 2
     Header.Parent = MainFrame
 
     -- Индикатор статуса
@@ -88,6 +90,7 @@ local function createGUI()
     StatusIndicator.Position = UDim2.new(0, 12, 0.5, -3)
     StatusIndicator.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
     StatusIndicator.BorderSizePixel = 0
+    StatusIndicator.ZIndex = 3
     StatusIndicator.Parent = Header
 
     local IndicatorCorner = Instance.new("UICorner")
@@ -97,21 +100,13 @@ local function createGUI()
     -- Контент (выезжающий блок)
     local Content = Instance.new("Frame")
     Content.Name = "Content"
-    Content.Size = UDim2.new(1, 0, 0, 0) -- Изначально скрыт
-    Content.Position = UDim2.new(0, 0, 1, 0)
-    Content.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    Content.Size = UDim2.new(1, 0, 0, 0)
+    Content.Position = UDim2.new(0, 0, 0, 40)
+    Content.BackgroundTransparency = 1
     Content.BorderSizePixel = 0
-    Content.ClipsDescendants = true
+    Content.ClipsDescendants = false
+    Content.ZIndex = 1
     Content.Parent = MainFrame
-
-    local ContentCorner = Instance.new("UICorner")
-    ContentCorner.CornerRadius = UDim.new(0, 10)
-    ContentCorner.Parent = Content
-
-    local ContentStroke = Instance.new("UIStroke")
-    ContentStroke.Color = Color3.fromRGB(255, 60, 60)
-    ContentStroke.Thickness = 2
-    ContentStroke.Parent = Content
 
     local ContentPadding = Instance.new("UIPadding")
     ContentPadding.PaddingTop = UDim.new(0, 10)
@@ -280,11 +275,13 @@ local function createGUI()
         FillCorner.CornerRadius = UDim.new(1, 0)
         FillCorner.Parent = Fill
 
-        local Knob = Instance.new("Frame")
+        local Knob = Instance.new("TextButton")
         Knob.Size = UDim2.new(0, 13, 0, 13)
         Knob.Position = UDim2.new((defaultValue - min) / (max - min), -6.5, 0.5, -6.5)
         Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Knob.BorderSizePixel = 0
+        Knob.Text = ""
+        Knob.AutoButtonColor = false
         Knob.Parent = Track
 
         local KnobCorner = Instance.new("UICorner")
@@ -304,21 +301,33 @@ local function createGUI()
             callback(value)
         end
 
+        Knob.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+            end
+        end)
+
+        Knob.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = false
+            end
+        end)
+
         Track.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
                 updateValue(input)
             end
         end)
 
         Track.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = false
             end
         end)
 
         UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                 updateValue(input)
             end
         end)
@@ -362,22 +371,20 @@ local function createGUI()
     -- ==========================================
 
     local isExpanded = false
-    local contentHeight = 180 -- Уменьшенная высота развернутого меню
+    local contentHeight = 180
 
     Header.MouseButton1Click:Connect(function()
         isExpanded = not isExpanded
 
-        local targetMainSize = isExpanded and UDim2.new(0, 220, 0, 40 + contentHeight + 5) or UDim2.new(0, 220, 0, 40)
+        local targetMainSize = isExpanded and UDim2.new(0, 220, 0, 40 + contentHeight + 10) or UDim2.new(0, 220, 0, 40)
         local targetContentSize = isExpanded and UDim2.new(1, 0, 0, contentHeight) or UDim2.new(1, 0, 0, 0)
-        local targetContentPos = isExpanded and UDim2.new(0, 0, 0, 45) or UDim2.new(0, 0, 1, 0)
 
         TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             Size = targetMainSize
         }):Play()
 
         TweenService:Create(Content, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = targetContentSize,
-            Position = targetContentPos
+            Size = targetContentSize
         }):Play()
     end)
 
@@ -393,7 +400,7 @@ local function createGUI()
     end
 
     Header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = MainFrame.Position
@@ -407,7 +414,7 @@ local function createGUI()
     end)
 
     Header.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
