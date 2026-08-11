@@ -1,5 +1,7 @@
--- Open Source Script for AutoFarm MM2
--- Feel free to steal this code as much as you want.
+-- ==========================================
+-- PLANET HUB — AUTO FARM GUI
+-- Minimalist Design with Scroll Animation
+-- ==========================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
