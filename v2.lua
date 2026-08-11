@@ -1,3 +1,5 @@
+-- Open Source Script AutoFarm murder mystery 2 Summer update 2026
+-- You can steal this shit lol
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
