@@ -1,5 +1,5 @@
 -- ==========================================
--- PLANET HUB — AUTO FARM GUI
+-- CANDY ZONE — AUTO FARM GUI
 -- Minimalist Design with Scroll Animation
 -- ==========================================
 
@@ -40,12 +40,12 @@ local State = {
 
 local function createGUI()
     -- Удаляем старую GUI если есть
-    if LocalPlayer.PlayerGui:FindFirstChild("PlanetHubGUI") then
-        LocalPlayer.PlayerGui.PlanetHubGUI:Destroy()
+    if LocalPlayer.PlayerGui:FindFirstChild("CandyZoneGUI") then
+        LocalPlayer.PlayerGui.CandyZoneGUI:Destroy()
     end
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "PlanetHubGUI"
+    ScreenGui.Name = "CandyZoneGUI"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     ScreenGui.Parent = LocalPlayer.PlayerGui
@@ -53,48 +53,40 @@ local function createGUI()
     -- Главный контейнер
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 300, 0, 50)
-    MainFrame.Position = UDim2.new(0.5, -150, 0, 20)
+    MainFrame.Size = UDim2.new(0, 220, 0, 40)
+    MainFrame.Position = UDim2.new(0.5, -110, 0, 15)
     MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
     MainFrame.BorderSizePixel = 0
     MainFrame.ClipsDescendants = false
     MainFrame.Parent = ScreenGui
 
     local MainCorner = Instance.new("UICorner")
-    MainCorner.CornerRadius = UDim.new(0, 12)
+    MainCorner.CornerRadius = UDim.new(0, 10)
     MainCorner.Parent = MainFrame
 
-    -- Тень
-    local Shadow = Instance.new("ImageLabel")
-    Shadow.Name = "Shadow"
-    Shadow.BackgroundTransparency = 1
-    Shadow.Position = UDim2.new(0, -15, 0, -15)
-    Shadow.Size = UDim2.new(1, 30, 1, 30)
-    Shadow.ZIndex = 0
-    Shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-    Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    Shadow.ImageTransparency = 0.5
-    Shadow.ScaleType = Enum.ScaleType.Slice
-    Shadow.SliceCenter = Rect.new(10, 10, 10, 10)
-    Shadow.Parent = MainFrame
+    -- Красная обводка
+    local RedStroke = Instance.new("UIStroke")
+    RedStroke.Color = Color3.fromRGB(255, 60, 60)
+    RedStroke.Thickness = 2
+    RedStroke.Parent = MainFrame
 
     -- Заголовок (кнопка для сворачивания)
     local Header = Instance.new("TextButton")
     Header.Name = "Header"
-    Header.Size = UDim2.new(1, 0, 0, 50)
+    Header.Size = UDim2.new(1, 0, 0, 40)
     Header.BackgroundTransparency = 1
     Header.Font = Enum.Font.GothamBold
-    Header.Text = "🪐 PLANET HUB"
+    Header.Text = "🍬 CANDY ZONE"
     Header.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Header.TextSize = 16
+    Header.TextSize = 14
     Header.Parent = MainFrame
 
     -- Индикатор статуса
     local StatusIndicator = Instance.new("Frame")
     StatusIndicator.Name = "StatusIndicator"
-    StatusIndicator.Size = UDim2.new(0, 8, 0, 8)
-    StatusIndicator.Position = UDim2.new(0, 15, 0.5, -4)
-    StatusIndicator.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+    StatusIndicator.Size = UDim2.new(0, 6, 0, 6)
+    StatusIndicator.Position = UDim2.new(0, 12, 0.5, -3)
+    StatusIndicator.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
     StatusIndicator.BorderSizePixel = 0
     StatusIndicator.Parent = Header
 
@@ -113,19 +105,24 @@ local function createGUI()
     Content.Parent = MainFrame
 
     local ContentCorner = Instance.new("UICorner")
-    ContentCorner.CornerRadius = UDim.new(0, 12)
+    ContentCorner.CornerRadius = UDim.new(0, 10)
     ContentCorner.Parent = Content
 
+    local ContentStroke = Instance.new("UIStroke")
+    ContentStroke.Color = Color3.fromRGB(255, 60, 60)
+    ContentStroke.Thickness = 2
+    ContentStroke.Parent = Content
+
     local ContentPadding = Instance.new("UIPadding")
-    ContentPadding.PaddingTop = UDim.new(0, 15)
-    ContentPadding.PaddingBottom = UDim.new(0, 15)
-    ContentPadding.PaddingLeft = UDim.new(0, 20)
-    ContentPadding.PaddingRight = UDim.new(0, 20)
+    ContentPadding.PaddingTop = UDim.new(0, 10)
+    ContentPadding.PaddingBottom = UDim.new(0, 10)
+    ContentPadding.PaddingLeft = UDim.new(0, 15)
+    ContentPadding.PaddingRight = UDim.new(0, 15)
     ContentPadding.Parent = Content
 
     local ContentLayout = Instance.new("UIListLayout")
     ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    ContentLayout.Padding = UDim.new(0, 12)
+    ContentLayout.Padding = UDim.new(0, 8)
     ContentLayout.Parent = Content
 
     -- ==========================================
@@ -135,24 +132,24 @@ local function createGUI()
     local function createToggle(name, defaultValue, callback)
         local Toggle = Instance.new("Frame")
         Toggle.Name = name .. "Toggle"
-        Toggle.Size = UDim2.new(1, 0, 0, 30)
+        Toggle.Size = UDim2.new(1, 0, 0, 25)
         Toggle.BackgroundTransparency = 1
         Toggle.Parent = Content
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -50, 1, 0)
+        Label.Size = UDim2.new(1, -45, 1, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Enum.Font.Gotham
         Label.Text = name
         Label.TextColor3 = Color3.fromRGB(200, 200, 200)
-        Label.TextSize = 14
+        Label.TextSize = 12
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = Toggle
 
         local Button = Instance.new("TextButton")
-        Button.Size = UDim2.new(0, 45, 0, 24)
-        Button.Position = UDim2.new(1, -45, 0.5, -12)
-        Button.BackgroundColor3 = defaultValue and Color3.fromRGB(70, 180, 90) or Color3.fromRGB(60, 60, 65)
+        Button.Size = UDim2.new(0, 38, 0, 20)
+        Button.Position = UDim2.new(1, -38, 0.5, -10)
+        Button.BackgroundColor3 = defaultValue and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(60, 60, 65)
         Button.BorderSizePixel = 0
         Button.Text = ""
         Button.Parent = Toggle
@@ -162,8 +159,8 @@ local function createGUI()
         ButtonCorner.Parent = Button
 
         local Knob = Instance.new("Frame")
-        Knob.Size = UDim2.new(0, 18, 0, 18)
-        Knob.Position = defaultValue and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
+        Knob.Size = UDim2.new(0, 14, 0, 14)
+        Knob.Position = defaultValue and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
         Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Knob.BorderSizePixel = 0
         Knob.Parent = Button
@@ -178,11 +175,11 @@ local function createGUI()
             isOn = not isOn
             
             TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                BackgroundColor3 = isOn and Color3.fromRGB(70, 180, 90) or Color3.fromRGB(60, 60, 65)
+                BackgroundColor3 = isOn and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(60, 60, 65)
             }):Play()
 
             TweenService:Create(Knob, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                Position = isOn and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
+                Position = isOn and UDim2.new(1, -17, 0.5, -7) or UDim2.new(0, 3, 0.5, -7)
             }):Play()
 
             callback(isOn)
@@ -194,33 +191,33 @@ local function createGUI()
     local function createDropdown(name, options, defaultValue, callback)
         local Dropdown = Instance.new("Frame")
         Dropdown.Name = name .. "Dropdown"
-        Dropdown.Size = UDim2.new(1, 0, 0, 30)
+        Dropdown.Size = UDim2.new(1, 0, 0, 25)
         Dropdown.BackgroundTransparency = 1
         Dropdown.Parent = Content
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(0.4, 0, 1, 0)
+        Label.Size = UDim2.new(0.35, 0, 1, 0)
         Label.BackgroundTransparency = 1
         Label.Font = Enum.Font.Gotham
         Label.Text = name .. ":"
         Label.TextColor3 = Color3.fromRGB(200, 200, 200)
-        Label.TextSize = 14
+        Label.TextSize = 12
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = Dropdown
 
         local Button = Instance.new("TextButton")
-        Button.Size = UDim2.new(0.55, 0, 0, 28)
-        Button.Position = UDim2.new(0.45, 0, 0, 1)
+        Button.Size = UDim2.new(0.6, 0, 0, 23)
+        Button.Position = UDim2.new(0.4, 0, 0, 1)
         Button.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
         Button.BorderSizePixel = 0
         Button.Font = Enum.Font.Gotham
         Button.Text = defaultValue
         Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Button.TextSize = 13
+        Button.TextSize = 11
         Button.Parent = Dropdown
 
         local ButtonCorner = Instance.new("UICorner")
-        ButtonCorner.CornerRadius = UDim.new(0, 8)
+        ButtonCorner.CornerRadius = UDim.new(0, 6)
         ButtonCorner.Parent = Button
 
         local currentIndex = table.find(options, defaultValue) or 1
@@ -237,34 +234,34 @@ local function createGUI()
     local function createSlider(name, min, max, defaultValue, callback)
         local Slider = Instance.new("Frame")
         Slider.Name = name .. "Slider"
-        Slider.Size = UDim2.new(1, 0, 0, 45)
+        Slider.Size = UDim2.new(1, 0, 0, 35)
         Slider.BackgroundTransparency = 1
         Slider.Parent = Content
 
         local Label = Instance.new("TextLabel")
-        Label.Size = UDim2.new(1, -60, 0, 20)
+        Label.Size = UDim2.new(1, -50, 0, 16)
         Label.BackgroundTransparency = 1
         Label.Font = Enum.Font.Gotham
         Label.Text = name
         Label.TextColor3 = Color3.fromRGB(200, 200, 200)
-        Label.TextSize = 14
+        Label.TextSize = 12
         Label.TextXAlignment = Enum.TextXAlignment.Left
         Label.Parent = Slider
 
         local ValueLabel = Instance.new("TextLabel")
-        ValueLabel.Size = UDim2.new(0, 50, 0, 20)
-        ValueLabel.Position = UDim2.new(1, -50, 0, 0)
+        ValueLabel.Size = UDim2.new(0, 40, 0, 16)
+        ValueLabel.Position = UDim2.new(1, -40, 0, 0)
         ValueLabel.BackgroundTransparency = 1
         ValueLabel.Font = Enum.Font.GothamBold
         ValueLabel.Text = tostring(defaultValue)
         ValueLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ValueLabel.TextSize = 14
+        ValueLabel.TextSize = 12
         ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
         ValueLabel.Parent = Slider
 
         local Track = Instance.new("Frame")
-        Track.Size = UDim2.new(1, 0, 0, 6)
-        Track.Position = UDim2.new(0, 0, 1, -10)
+        Track.Size = UDim2.new(1, 0, 0, 5)
+        Track.Position = UDim2.new(0, 0, 1, -8)
         Track.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
         Track.BorderSizePixel = 0
         Track.Parent = Slider
@@ -275,7 +272,7 @@ local function createGUI()
 
         local Fill = Instance.new("Frame")
         Fill.Size = UDim2.new((defaultValue - min) / (max - min), 0, 1, 0)
-        Fill.BackgroundColor3 = Color3.fromRGB(70, 180, 90)
+        Fill.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
         Fill.BorderSizePixel = 0
         Fill.Parent = Track
 
@@ -284,8 +281,8 @@ local function createGUI()
         FillCorner.Parent = Fill
 
         local Knob = Instance.new("Frame")
-        Knob.Size = UDim2.new(0, 16, 0, 16)
-        Knob.Position = UDim2.new((defaultValue - min) / (max - min), -8, 0.5, -8)
+        Knob.Size = UDim2.new(0, 13, 0, 13)
+        Knob.Position = UDim2.new((defaultValue - min) / (max - min), -6.5, 0.5, -6.5)
         Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Knob.BorderSizePixel = 0
         Knob.Parent = Track
@@ -301,7 +298,7 @@ local function createGUI()
             local value = math.floor(min + (max - min) * relativeX)
             
             Fill.Size = UDim2.new(relativeX, 0, 1, 0)
-            Knob.Position = UDim2.new(relativeX, -8, 0.5, -8)
+            Knob.Position = UDim2.new(relativeX, -6.5, 0.5, -6.5)
             ValueLabel.Text = tostring(value)
             
             callback(value)
@@ -337,10 +334,10 @@ local function createGUI()
         Settings.AutoFarmEnabled = value
         if value then
             startFarming()
-            StatusIndicator.BackgroundColor3 = Color3.fromRGB(70, 255, 70)
+            StatusIndicator.BackgroundColor3 = Color3.fromRGB(60, 255, 60)
         else
             stopFarming()
-            StatusIndicator.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+            StatusIndicator.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
         end
     end)
 
@@ -365,20 +362,22 @@ local function createGUI()
     -- ==========================================
 
     local isExpanded = false
-    local contentHeight = 250 -- Высота развернутого меню
+    local contentHeight = 180 -- Уменьшенная высота развернутого меню
 
     Header.MouseButton1Click:Connect(function()
         isExpanded = not isExpanded
 
-        local targetMainSize = isExpanded and UDim2.new(0, 300, 0, 50 + contentHeight) or UDim2.new(0, 300, 0, 50)
+        local targetMainSize = isExpanded and UDim2.new(0, 220, 0, 40 + contentHeight + 5) or UDim2.new(0, 220, 0, 40)
         local targetContentSize = isExpanded and UDim2.new(1, 0, 0, contentHeight) or UDim2.new(1, 0, 0, 0)
+        local targetContentPos = isExpanded and UDim2.new(0, 0, 0, 45) or UDim2.new(0, 0, 1, 0)
 
-        TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
             Size = targetMainSize
         }):Play()
 
-        TweenService:Create(Content, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Size = targetContentSize
+        TweenService:Create(Content, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = targetContentSize,
+            Position = targetContentPos
         }):Play()
     end)
 
@@ -885,7 +884,7 @@ end)
 
 createGUI()
 
-print("✅ PLANET HUB — Auto Farm Loaded!")
-print("🪐 GUI created with scroll animation")
+print("✅ CANDY ZONE — Auto Farm Loaded!")
+print("🍬 Compact GUI with scroll animation")
 print("⚙️ Modes: Underground & Sit")
 print("🔪 Avoid Murder enabled")
